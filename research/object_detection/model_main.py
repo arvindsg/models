@@ -41,6 +41,7 @@ flags.DEFINE_integer('sample_1_of_n_eval_on_train_examples', 5, 'Will sample '
                      'one of every n train input examples for evaluation, '
                      'where n is provided. This is only used if '
                      '`eval_training_data` is True.')
+flags.DEFINE_integer('save_summary_steps', 100, 'Will save summary every n steps')
 flags.DEFINE_string(
     'hparams_overrides', None, 'Hyperparameter overrides, '
     'represented as a string containing comma-separated '
@@ -53,13 +54,14 @@ flags.DEFINE_boolean(
     'run_once', False, 'If running in eval-only mode, whether to run just '
     'one round of eval vs running continuously (default).'
 )
+
 FLAGS = flags.FLAGS
 
 
 def main(unused_argv):
   flags.mark_flag_as_required('model_dir')
   flags.mark_flag_as_required('pipeline_config_path')
-  config = tf.estimator.RunConfig(model_dir=FLAGS.model_dir)
+  config = tf.estimator.RunConfig(model_dir=FLAGS.model_dir,save_summary_steps=FLAGS.save_summary_steps)
 
   train_and_eval_dict = model_lib.create_estimator_and_inputs(
       run_config=config,
@@ -93,17 +95,18 @@ def main(unused_argv):
       model_lib.continuous_eval(estimator, FLAGS.checkpoint_dir, input_fn,
                                 train_steps, name)
   else:
-    train_spec, eval_specs = model_lib.create_train_and_eval_specs(
-        train_input_fn,
-        eval_input_fns,
-        eval_on_train_input_fn,
-        predict_input_fn,
-        train_steps,
-        eval_on_train_data=False)
-
-    # Currently only a single Eval Spec is allowed.
-    tf.estimator.train_and_evaluate(estimator, train_spec, eval_specs[0])
-
-
+    for i in range(10):
+        train_spec, eval_specs = model_lib.create_train_and_eval_specs(
+            train_input_fn,
+            eval_input_fns,
+            eval_on_train_input_fn,
+            predict_input_fn,
+            train_steps*(i+1),
+            eval_on_train_data=False)
+    
+        # Currently only a single Eval Spec is allowed.
+        
+        tf.estimator.train_and_evaluate(estimator, train_spec, eval_specs[0])
+    
 if __name__ == '__main__':
   tf.app.run()

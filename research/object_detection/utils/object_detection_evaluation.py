@@ -39,7 +39,8 @@ from object_detection.core import standard_fields
 from object_detection.utils import label_map_util
 from object_detection.utils import metrics
 from object_detection.utils import per_image_evaluation
-
+def unicode(a,b):
+    return str(a.encode(b)) 
 
 class DetectionEvaluator(object):
   """Interface for object detection evalution classes.

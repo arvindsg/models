@@ -36,6 +36,7 @@ from object_detection.utils import label_map_util
 from object_detection.utils import shape_utils
 from object_detection.utils import variables_helper
 from object_detection.utils import visualization_utils as vis_utils
+from tensorflow.python.summary import summary
 
 # A map of names to methods that help build the model.
 MODEL_BUILD_UTIL_MAP = {
@@ -330,7 +331,9 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
           losses_dict['Loss/regularization_loss'] = regularization_loss
       total_loss = tf.add_n(losses, name='total_loss')
       losses_dict['Loss/total_loss'] = total_loss
-
+      ema = tf.train.ExponentialMovingAverage(decay=0.99, zero_debias=True)
+      maintain_ema_op = ema.apply([total_loss])
+      summary.scalar('emaloss', ema.average(total_loss))
       if 'graph_rewriter_config' in configs:
         graph_rewriter_fn = graph_rewriter_builder.build(
             configs['graph_rewriter_config'], is_training=is_training)
@@ -369,7 +372,11 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
           tf.summary.scalar(var.op.name, var)
       summaries = [] if use_tpu else None
       if train_config.summarize_gradients:
-        summaries = ['gradients', 'gradient_norm', 'global_gradient_norm']
+        summaries = [ "learning_rate",
+            "loss",
+            "gradients",
+            "gradient_norm",
+            "global_gradient_norm"]
       train_op = tf.contrib.layers.optimize_loss(
           loss=total_loss,
           global_step=global_step,
@@ -380,7 +387,7 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
           variables=trainable_variables,
           summaries=summaries,
           name='')  # Preventing scope prefix on all variables.
-
+      train_op=tf.group(train_op,maintain_ema_op)  
     if mode == tf.estimator.ModeKeys.PREDICT:
       exported_output = exporter_lib.add_output_tensor_nodes(detections)
       export_outputs = {
