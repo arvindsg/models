@@ -88,14 +88,14 @@ def main(unused_argv):
       input_fn = eval_input_fns[0]
     if FLAGS.run_once:
       estimator.evaluate(input_fn,
-                         num_eval_steps=None,
+                         #num_eval_steps=None,
                          checkpoint_path=tf.train.latest_checkpoint(
                              FLAGS.checkpoint_dir))
     else:
       model_lib.continuous_eval(estimator, FLAGS.checkpoint_dir, input_fn,
                                 train_steps, name)
   else:
-    for i in range(10):
+    for i in range(20):
         train_spec, eval_specs = model_lib.create_train_and_eval_specs(
             train_input_fn,
             eval_input_fns,
