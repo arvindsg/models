@@ -23,7 +23,10 @@ FLAGS = flags.FLAGS
 
 
 def class_text_to_int(row_label):
-    return 1
+    if row_label=="Damage":
+        return 1
+    else:
+        return None
 def getDicts(row_iterator):
     _dict=None
     for index, row in row_iterator.iterrows():
@@ -56,7 +59,7 @@ def create_tf_example(_dict):
     ymins = [r / height for r in row['ymin']]
     ymaxs = [r / height for r in row['ymax']]
     classes_text = [r.encode('utf8') for r in row["class"]]
-    classes = [class_text_to_int(row['class']) for r in row["class"]]
+    classes = [class_text_to_int(r) for r in row["class"]]
     # print(xmins)
     tf_example = tf.train.Example(features=tf.train.Features(feature={
         'image/height': dataset_util.int64_feature(height),
