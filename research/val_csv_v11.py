@@ -98,6 +98,9 @@ with open(CSV_FILE, 'r') as fid:
                 if xmin < 0 or ymin < 0 or xmax < 0 or ymax < 0:
                     error = True
                     print("Negative values are not allowed", name)
+            except KeyboardInterrupt:
+                logging.exception("Failed in processing imagge{}".format(path))
+                break
             except:
                 error=True
                 logging.exception("Failed in processing imagge{}".format(path))
