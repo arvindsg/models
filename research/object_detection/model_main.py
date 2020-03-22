@@ -42,6 +42,9 @@ flags.DEFINE_integer('sample_1_of_n_eval_on_train_examples', 5, 'Will sample '
                      'where n is provided. This is only used if '
                      '`eval_training_data` is True.')
 flags.DEFINE_integer('save_summary_steps', 100, 'Will save summary every n steps')
+flags.DEFINE_integer('save_checkpoints_secs', 7200, 'Will save  checkpoints  every n steps')
+flags.DEFINE_integer('keep_checkpoint_every_n_hours', 2, 'Will keep checkpoints every n hours')
+
 flags.DEFINE_string(
     'hparams_overrides', None, 'Hyperparameter overrides, '
     'represented as a string containing comma-separated '
@@ -61,7 +64,7 @@ FLAGS = flags.FLAGS
 def main(unused_argv):
   flags.mark_flag_as_required('model_dir')
   flags.mark_flag_as_required('pipeline_config_path')
-  config = tf.estimator.RunConfig(model_dir=FLAGS.model_dir,save_summary_steps=FLAGS.save_summary_steps)
+  config = tf.estimator.RunConfig(model_dir=FLAGS.model_dir,save_summary_steps=FLAGS.save_summary_steps,save_checkpoints_secs=FLAGS.save_checkpoints_secs,keep_checkpoint_every_n_hours=FLAGS.keep_checkpoint_every_n_hours)
 
   train_and_eval_dict = model_lib.create_estimator_and_inputs(
       run_config=config,
