@@ -19,14 +19,27 @@ flags = tf.app.flags
 flags.DEFINE_string('csv_input', '', 'Path to the CSV input')
 flags.DEFINE_string('output_path', '', 'Path to output TFRecord')
 flags.DEFINE_string('images_path', '', 'Path to images files')
+flags.DEFINE_string('labels_csv_path', '', 'Path to labels csv')
 FLAGS = flags.FLAGS
 
 
+import csv
+
+with open(FLAGS.labels_csv_path) as f:
+    reader = csv.reader(f)
+    data = list(reader)
+    label_map={}
+    for i in range(len(data)):
+        label_map[data[i][0]]=i
+
+print(label_map)
+
 def class_text_to_int(row_label):
-    if row_label=="Damage":
-        return 1
+    if row_label in label_map.keys():
+        return label_map[row_label]
     else:
         return None
+
 def getDicts(row_iterator):
     _dict=None
     for index, row in row_iterator.iterrows():
