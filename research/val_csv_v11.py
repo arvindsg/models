@@ -5,9 +5,17 @@ import numpy as np
 import tqdm
 from skimage import io
 import logging
-FOLDER = 'object_detection/projects/damage_v11/images/train/'
-CSV_FILE = 'object_detection/projects/damage_v11/data/damage_v11_train_labels.csv'
-OUT_FILE = 'object_detection/projects/damage_v11/data/damage_v11_train_labels_validated.csv'
+import tensorflow as tf
+flags = tf.app.flags
+flags.DEFINE_string('folder', '', 'Path to images')
+flags.DEFINE_string('csv_in', '', 'Path to input csv file')
+flags.DEFINE_string('csv_out', '', 'Path to validated csv file')
+FLAGS = flags.FLAGS
+
+
+FOLDER=FLAGS.folder
+CSV_FILE=FLAGS.csv_in
+OUT_FILE=FLAGS.csv_out
 with open(CSV_FILE, 'r') as fid:
     with open(OUT_FILE, 'w') as wid:
 
