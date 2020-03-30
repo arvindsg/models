@@ -99,7 +99,7 @@ with open(CSV_FILE, 'r') as fid:
                     error = True
                     print("Negative values are not allowed", name)
             except KeyboardInterrupt:
-                logging.exception("Failed in processing imagge{}".format(path))
+                logging.exception("Keyboard interrupt")
                 break
             except:
                 error=True
